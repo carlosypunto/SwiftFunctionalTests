@@ -106,7 +106,7 @@ func qsort(var array: [Int]) -> [Int] { // bad, it keep state on array
 
 // more functional versión, generic quickSort based on no generic form:
 // http://www.objc.io/snippets/3.html
-// it do not accept no typed empty arrays []
+// it do not accept no typed empty arrays [], use only typed arrays ie: Array<Int>()
 func quickSort<T: Comparable>(array:[T]) -> [T] {
     if let (x,xs) = array.decompose {
         let lesser = xs.filter({ $0 <= x })
@@ -123,7 +123,7 @@ aSorted
 
 
 // quickSort([]) // fails because it is not defined the type of T
-quickSort(emptyIntArray)
+quickSort(Array<Int>())
 quickSort(a)
 
 
@@ -135,9 +135,12 @@ quickSort(a)
 // sum
 
 func recursiveSum(array:[Int]) -> Int {
-    if array.count == 0 { return 0 }
-    let (x,xs) = array.decompose!
-    return x + recursiveSum(xs)
+    if let (x,xs) = array.decompose {
+        return x + recursiveSum(xs)
+    }
+    else {
+        return 0
+    }
 }
 
 recursiveSum(Array<Int>())
@@ -146,11 +149,14 @@ recursiveSum([1,2,3])
 // maximum --------------------------------------------------------
 
 func recursiveMaximum<T: Comparable>(array:[T]) -> T! {
-    if array.count == 0 { return nil }
     if array.count == 1 { return array[0] }
-    let (x,xs) = array.decompose!
-    let maxTail = recursiveMaximum(xs)
-    return x > maxTail ? x : maxTail
+    if let (x,xs) = array.decompose {
+        let maxTail = recursiveMaximum(xs)
+        return x > maxTail ? x : maxTail
+    }
+    else {
+        return nil
+    }
 }
 
 recursiveMaximum(Array<Int>())
@@ -259,7 +265,6 @@ func maximumUsingReduce<T: Comparable>(array:[T]) -> T! {
 
 maximumUsingReduce(Array<Int>())
 maximumUsingReduce([1,2,3])
-
 
 
 
