@@ -1,0 +1,1 @@
+xcrun -sdk macosx swiftc -o collatzSequenceSpeedTest collatzSequenceSpeedTest.swift

@@ -106,7 +106,7 @@ func qsort(var array: [Int]) -> [Int] { // bad, it keep state on array
 
 // more functional versión, generic quickSort based on no generic form:
 // http://www.objc.io/snippets/3.html
-// it do not accept no typed empty arrays [], use only typed arrays ie: Array<Int>()
+// it do not accept no typed empty arrays [], use only typed arrays ie: [Int]()
 func quickSort<T: Comparable>(array:[T]) -> [T] {
     if let (x,xs) = array.decompose {
         let lesser = xs.filter({ $0 <= x })
@@ -123,7 +123,7 @@ aSorted
 
 
 // quickSort([]) // fails because it is not defined the type of T
-quickSort(Array<Int>())
+quickSort([Int]())
 quickSort(a)
 
 
@@ -143,7 +143,7 @@ func recursiveSum(array:[Int]) -> Int {
     }
 }
 
-recursiveSum(Array<Int>())
+recursiveSum([Int]())
 recursiveSum([1,2,3])
 
 // maximum --------------------------------------------------------
@@ -159,12 +159,12 @@ func recursiveMaximum<T: Comparable>(array:[T]) -> T! {
     }
 }
 
-recursiveMaximum(Array<Int>())
+recursiveMaximum([Int]())
 recursiveMaximum([1,2,3])
 
 // replicate ------------------------------------------------------
 
-func recursiveReplicate<T>(n:Int, e:T) -> [T] {
+func recursiveReplicate<T, I: IntegerType>(n:I, e:T) -> [T] {
     if n == 0 { return Array<T>() }
     return [e] + recursiveReplicate(n - 1, e)
 }
@@ -174,7 +174,7 @@ recursiveReplicate(15, 1)
 
 // take -----------------------------------------------------------
 
-func take<T>(n:Int, array:[T]) -> [T] {
+func take<T, I: IntegerType>(n:I, array:[T]) -> [T] {
     if n == 0 { return Array<T>() }
     if array.count == 0 { return Array<T>() }
     let (x,xs) = array.decompose!
@@ -207,16 +207,34 @@ reverse(a)
 // zip -------------------------------------------------------------
 
 func zip<A,B>(aA:[A], aB:[B]) -> [(A,B)] {
-    if aA.count == 0 { return Array<(A,B)>() }
-    if aB.count == 0 { return Array<(A,B)>() }
-    let (x,xs) = aA.decompose!
-    let (y,ys) = aB.decompose!
-    return [(x,y)] + zip(xs, ys)
+    if let (x,xs) = aA.decompose, (y,ys) = aB.decompose {
+        return [(x,y)] + zip(xs, ys)
+    }
+    else {
+        return []
+    }
 }
 
 zip(Array<String>(), [1, 2, 3])
 zip([1,2,3], Array<String>())
 zip([1,2,3,4,5], ["one","two","three"])
+
+// zipWidth -------------------------------------------------------------
+
+func zipWith<A,B,C>(f: (A, B) -> C, aA: [A], aB: [B]) -> [C] {
+    if let (x,xs) = aA.decompose, (y,ys) = aB.decompose {
+        return [f(x, y)] + zipWith(f, xs, ys)
+    }
+    else {
+        return []
+    }
+}
+
+let testF = { (a:Int, b:String) -> String in
+    return "\(a):" + b
+}
+
+zipWith(testF, [1, 2, 3], ["one", "two"])
 
 // contains --------------------------------------------------------
 
@@ -229,8 +247,7 @@ func contains<T: Equatable>(e:T, array:[T]) -> Bool {
 
 contains(1, [])
 contains(4, [1,2,3])
-contains(4, [1,2,3, 4])
-
+contains(4, [1,2,3,4])
 
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -244,14 +261,14 @@ func sumUsingReduce(xs: [Int]) -> Int {
 }
 
 
-sumUsingReduce(Array<Int>())
+sumUsingReduce([Int]())
 sumUsingReduce([1,2,3])
 
 func sumUsingReduceSimplest(xs: [Int]) -> Int {
     return reduce(xs, 0, +)
 }
 
-sumUsingReduceSimplest(Array<Int>())
+sumUsingReduceSimplest([Int]())
 
 sumUsingReduceSimplest([1,2,3])
 
@@ -263,14 +280,29 @@ func maximumUsingReduce<T: Comparable>(array:[T]) -> T! {
     return reduce(array, array[0]) { $0 > $1 ? $0 : $1 }
 }
 
-maximumUsingReduce(Array<Int>())
+maximumUsingReduce([Int]())
 maximumUsingReduce([1,2,3])
 
 
+// reverse --------------------------------------------------------
+
+func reverseUsingReduce<T>(array:[T]) -> [T] {
+    return reduce(array, Array<T>()) { [$1] + $0 }
+}
+
+reverseUsingReduce([3,2,1])
 
 
+// filter --------------------------------------------------------
 
+func filterUsingReduce<T>(f:(T -> Bool), array:[T]) -> [T] {
+    return reduce(array, Array<T>()) { f($1) ? $0 + [$1] : $0 }
+}
 
+filterUsingReduce(
+    { $0 < 10 }, [1,20,3,45])
+
+// 
 
 
 
