@@ -38,7 +38,7 @@ let linesInURL3 = count <<< lines <<< getContents <<< "http://www.objc.io/books"
 // --
 
 
-infix operator >>> { associativity right }
+infix operator >>> { associativity left }
 
 func >>> <A, B> (s: A, f: A -> B) -> B {
     return f(s)
